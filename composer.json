@@ -1,0 +1,17 @@
+{
+    "name": "ilia/raschet",
+    "autoload": {
+        "psr-4": {
+            "Ilia\\Raschet\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "phantomdevi1",
+            "email": "gruzdev_ilya16@mail.ru"
+        }
+    ],
+    "require": {
+        "mpdf/mpdf": "^8.2"
+    }
+}
