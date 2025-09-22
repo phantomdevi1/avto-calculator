@@ -25,8 +25,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             $result = $stmt->get_result();
             $user = $result->fetch_assoc();
             $stmt->close();
-
-            // Сравнение plain-text паролей (НЕБЕЗОПАСНО)
             if ($user && $password === $user['password']) {
                 // Устанавливаем сессию (можно хранить id и username)
                 $_SESSION['user'] = $user['username'];
