@@ -10,6 +10,7 @@ if (!isset($_SESSION['user'])) {
 <head>
   <meta charset="UTF-8">
   <title>Главная</title>
+<link rel='shortcut icon' href='img/favicon.png' type='image/x-icon'>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>

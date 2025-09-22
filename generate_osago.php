@@ -16,6 +16,7 @@ $price = floatval($_POST['price']);
 $html = "
 <head>
 <title>Документ</title>
+<link rel='shortcut icon' href='img/favicon.png' type='image/x-icon'>
 </head>
 <h1>Договор ОСАГО</h1>
 <p>г. Тверь, «___» ________ 20__ г.</p>

@@ -26,6 +26,7 @@ $age = $current_year - $year;
 $html = "
 <head>
 <title>Документ</title>
+<link rel='shortcut icon' href='img/favicon.png' type='image/x-icon'>
 </head>
 <h1 style='text-align:center;'>Оценка автомобиля по программе Trade-in</h1>
 <p><strong>Дата: </strong>".date("d.m.Y")."</p>

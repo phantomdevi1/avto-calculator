@@ -16,6 +16,7 @@ $price_calc = floatval($_POST['price_calc']);
 $html = "
 <head>
 <title>Документ</title>
+<link rel='shortcut icon' href='img/favicon.png' type='image/x-icon'>
 </head>
 <h1>Договор КАСКО</h1>
 <p>г. Тверь, «___» ________ 20__ г.</p>

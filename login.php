@@ -46,6 +46,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
   <meta charset="UTF-8">
   <title>Авторизация</title>
   <link rel="stylesheet" href="style.css">
+<link rel='shortcut icon' href='img/favicon.png' type='image/x-icon'>
 </head>
 <body class="login-body">
   <div class="login-box">
