@@ -6,8 +6,21 @@
 }
 
 body {
-  background: url(img/background.svg);
+  background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
   min-height: 100vh;
+  background-size: 200% 200%;
+  animation: gradientShift 8s ease infinite;
+}
+@keyframes gradientShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
 }
 /* ====== ЛОГИН ====== */
 .login-box {
@@ -66,54 +79,74 @@ body {
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
   text-align: center;
   width: 400px;
-  margin-top: 15%;
+  margin-top: 5%;
 }
 
 .container h2 {
   color: #2d3436;
 }
 .security_status_text {
-  margin: 10px;
-  color: green;
+  color: #00b894;
+  margin-bottom: 25px;
+  font-weight: 500;
 }
 
+/* Контейнер с блоками ссылок */
+.container_home_href {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-bottom: 25px;
+}
+.index_logo {
+  width: 300px;
+}
+
+/* Каждый блок-ссылка */
+.block_href {
+  background-color: #d63031;
+  color: #fff;
+  text-decoration: none;
+  font-weight: 600;
+  border-radius: 10px;
+  padding: 12px 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s, background 0.3s;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Если внутри есть картинка */
+.block_href img {
+  width: 28px;
+  height: 28px;
+  margin-right: 10px;
+  object-fit: contain;
+}
+
+/* Эффект наведения */
+.block_href:hover {
+  background-color: #ff7675;
+  transform: scale(1.05);
+}
+
+/* Кнопка выхода */
 .logout_btn {
   display: inline-block;
-  margin-top: 20px;
+  background-color: #b2bec3;
+  color: #2d3436;
   text-decoration: none;
+  font-weight: 600;
+  border-radius: 10px;
   padding: 10px 20px;
-  border-radius: 8px;
-  background: #d63031;
-  color: white;
-  transition: background 0.3s;
+  transition: background 0.3s, transform 0.2s;
 }
 
 .logout_btn:hover {
-  background: #ff7675;
-}
-.container_home_href {
-  color: black;
-  padding: 20px 10px;
-  background-color: #74b9ff;
-  border-radius: 10px;
-  display: flex;
-  flex-direction: column;
-  text-align: center;
-  align-items: center;
-  gap: 30px;
-}
-.block_href {
-  display: inline-block;
-  text-decoration: none;
-  padding: 10px 20px;
-  border-radius: 8px;
-  background: #d63031;
-  color: white;
-  transition: 0.3s;
-  width: 80%;
-}
-.block_href:hover {
-  transform: scale(1.1);
+  background-color: #636e72;
+  color: #fff;
+  transform: scale(1.05);
 }
 
 /* Калькулятор автокредита */
