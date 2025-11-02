@@ -103,7 +103,7 @@ if (isset($_POST['calculate'])) {
 
     <form method="post" id="osago-form">
         <label>Базовый тариф (руб.):</label>
-        <input type="number" step="0.01" name="base" value="5000" required>
+        <input type="number" step="0.01" name="base" value="5000" min="2000" max="6000" required>
 
         <label>Регион регистрации:</label>
         <select name="region" required>
