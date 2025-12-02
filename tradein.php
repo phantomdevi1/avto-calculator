@@ -1,14 +1,26 @@
 <?php
 session_start();
+require "config.php";
 
 if (!isset($_SESSION['user'])) {
     header("Location: login.php");
     exit;
 }
 
+/* =============================
+   ОБРАБОТКА РЕЗУЛЬТАТА
+============================= */
+
 $result = '';
+
 if (isset($_POST['calculate'])) {
-    $model = $_POST['model'];
+
+    // Если выбрана другая марка — подставляем вручную введённую
+    $brand = ($_POST['brand'] === "other") ? $_POST['other_brand'] : $_POST['brand_name_hidden'];
+
+    // Если выбрана другая модель — подставляем вручную введённую
+    $model = ($_POST['model'] === "other") ? $_POST['other_model'] : $_POST['model'];
+
     $year = intval($_POST['year']);
     $base_price = floatval(str_replace(' ', '', $_POST['base_price']));
     $mileage = intval($_POST['mileage']);
@@ -20,42 +32,42 @@ if (isset($_POST['calculate'])) {
     // Начинаем с базовой стоимости
     $final_price = $base_price;
 
-    // Корректировка за возраст (минус 5% за каждый год старше 3 лет)
+    // Корректировка за возраст
     if ($age > 3) {
         $final_price -= $base_price * 0.05 * ($age - 3);
     }
 
-    // Корректировка за пробег (свыше 100 000 км – минус 10%, свыше 200 000 км – минус 20%)
+    // Корректировка за пробег
     if ($mileage > 200000) {
         $final_price -= $base_price * 0.20;
     } elseif ($mileage > 100000) {
         $final_price -= $base_price * 0.10;
     }
 
-    // Корректировка за состояние
+    // Корректировка за состояние авто
     switch ($condition) {
-        case 'excellent': // отличное
-            $final_price *= 1.05; // бонус
+        case 'excellent':
+            $final_price *= 1.05;
             break;
-        case 'good': // хорошее
-            // без изменений
-            break;
-        case 'satisfactory': // удовлетворительное
+        case 'satisfactory':
             $final_price -= $base_price * 0.10;
             break;
-        case 'bad': // плохое
+        case 'bad':
             $final_price -= $base_price * 0.25;
             break;
     }
 
-    // Не меньше 10% от базовой стоимости
+    // Минимум 10% от новой цены
     if ($final_price < $base_price * 0.1) {
         $final_price = $base_price * 0.1;
     }
 
+    /* =============== HTML результата =============== */
+
     $result = "
     <div class='result' id='result-block'>
         <h2>Оценка Trade-in</h2>
+        <p>Марка: <strong>$brand</strong></p>
         <p>Модель: <strong>$model</strong></p>
         <p>Год выпуска: <strong>$year</strong></p>
         <p>Базовая стоимость нового авто: <strong>".number_format($base_price, 2, ',', ' ')." руб.</strong></p>
@@ -65,6 +77,7 @@ if (isset($_POST['calculate'])) {
         <p><strong>Итоговая стоимость по программе Trade-in: ".number_format($final_price, 2, ',', ' ')." руб.</strong></p>
 
         <form method='post' action='generate_tradein.php' target='_blank'>
+            <input type='hidden' name='brand' value='$brand'>
             <input type='hidden' name='model' value='$model'>
             <input type='hidden' name='year' value='$year'>
             <input type='hidden' name='base_price' value='$base_price'>
@@ -78,8 +91,14 @@ if (isset($_POST['calculate'])) {
     </div>
     ";
 }
-?>
 
+/* =============================
+   ЗАГРУЗКА МАРОК ИЗ БД
+============================= */
+
+$brands = $conn->query("SELECT * FROM car_brands ORDER BY brand_name ASC");
+
+?>
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -91,20 +110,49 @@ if (isset($_POST['calculate'])) {
 </head>
 <body>
 
-      <header>
-        <a class="toolbar_href" href="osago.php">Расчёт ОСАГО</a>
-        <a class="toolbar_href" href="kasko.php">Расчёт КАСКО</a>
-        <a class="toolbar_href" href="index.php">Главная</a>
-        <a class="toolbar_href" href="credit.php">Расчёт автокредита</a>
-        <a class="toolbar_href" href="tradein.php">Расчёт TRADE-IN</a>
-    </header>
+<header>
+    <a class="toolbar_href" href="osago.php">Расчёт ОСАГО</a>
+    <a class="toolbar_href" href="kasko.php">Расчёт КАСКО</a>
+    <a class="toolbar_href" href="index.php">Главная</a>
+    <a class="toolbar_href" href="credit.php">Расчёт автокредита</a>
+    <a class="toolbar_href" href="tradein.php">Расчёт TRADE-IN</a>
+</header>
 
 <div class="calculator-box">
     <h1>Калькулятор Trade-in</h1>
 
     <form method="post" id="tradein-form">
+
+        <!-- Марка авто -->
+        <label>Марка авто:</label>
+        <select name="brand" id="brand_select" required>
+            <option value="">Выберите марку...</option>
+
+            <?php while ($row = $brands->fetch_assoc()): ?>
+                <option value="<?= $row['id'] ?>"><?= $row['brand_name'] ?></option>
+            <?php endwhile; ?>
+
+            <option value="other">Другая марка...</option>
+        </select>
+
+        <div id="other_brand_block" style="display:none;">
+            <label>Введите марку:</label>
+            <input type="text" name="other_brand">
+        </div>
+
+        <!-- скрыто передаём название выбранной марки -->
+        <input type="hidden" name="brand_name_hidden" id="brand_name_hidden">
+
+        <!-- Модель авто -->
         <label>Модель авто:</label>
-        <input type="text" name="model" required>
+        <select name="model" id="model_select" required>
+            <option value="">Сначала выберите марку...</option>
+        </select>
+
+        <div id="other_model_block" style="display:none;">
+            <label>Введите модель:</label>
+            <input type="text" name="other_model">
+        </div>
 
         <label>Год выпуска:</label>
         <input type="number" name="year" min="1980" max="2025" required>
@@ -126,16 +174,16 @@ if (isset($_POST['calculate'])) {
         <input type="submit" name="calculate" value="Рассчитать">
     </form>
 
-    <?php echo $result; ?>
+    <?= $result ?>
 </div>
 
+
 <script>
-// Форматирование чисел с пробелами
+// Форматирование чисел
 function formatNumber(input) {
     let value = input.value.replace(/\D/g,'');
     input.value = value.replace(/\B(?=(\d{3})+(?!\d))/g, " ");
 }
-
 function unformatNumber(value) {
     return value.replace(/\s/g, '');
 }
@@ -148,7 +196,52 @@ document.getElementById('tradein-form').addEventListener('submit', function(){
     document.getElementById('base_price').value = unformatNumber(document.getElementById('base_price').value);
 });
 
-// Кнопка «Назад»
+// ============================
+// AJAX загрузка моделей
+// ============================
+
+document.getElementById("brand_select").addEventListener("change", function() {
+    const brandId = this.value;
+    const modelSelect = document.getElementById("model_select");
+    const otherBrandBlock = document.getElementById("other_brand_block");
+    const otherModelBlock = document.getElementById("other_model_block");
+    const brandNameHidden = document.getElementById("brand_name_hidden");
+
+    // текстовое название выбранной марки (для PDF)
+    brandNameHidden.value = this.options[this.selectedIndex].text;
+
+    // Если "другая марка"
+    if (brandId === "other") {
+        otherBrandBlock.style.display = "block";
+        otherModelBlock.style.display = "block";
+        modelSelect.innerHTML = '<option value="other">Введите модель вручную</option>';
+        return;
+    }
+
+    otherBrandBlock.style.display = "none";
+    otherModelBlock.style.display = "none";
+
+    // Загружаем модели из БД
+    fetch("get_models.php?brand_id=" + brandId)
+        .then(response => response.json())
+        .then(data => {
+            modelSelect.innerHTML = "";
+
+            data.forEach(model => {
+                modelSelect.innerHTML += `<option value="${model.model_name}">${model.model_name}</option>`;
+            });
+
+            modelSelect.innerHTML += `<option value="other">Другая модель...</option>`;
+        });
+});
+
+// Если выбрана "другая модель"
+document.getElementById("model_select").addEventListener("change", function() {
+    const otherModelBlock = document.getElementById("other_model_block");
+    otherModelBlock.style.display = (this.value === "other") ? "block" : "none";
+});
+
+// Кнопка назад
 document.addEventListener('click', function(e){
     if(e.target && e.target.id === 'clear-btn'){
         document.getElementById('tradein-form').reset();
@@ -157,5 +250,6 @@ document.addEventListener('click', function(e){
     }
 });
 </script>
+
 </body>
 </html>
